@@ -11,10 +11,18 @@ config_version=5
 [application]
 
 config/name="The Ring Goes South"
-run/main_scene="uid://b2aeu26rx0wpm"
-config/features=PackedStringArray("4.4", "Forward Plus")
+run/main_scene="uid://c01oube3wmfw4"
+config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [dotnet]
 
 project/assembly_name="The Ring Goes South"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/YATI/plugin.cfg")
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0

@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://d352awk7chr0f"]
+
+[ext_resource type="Script" uid="uid://b6pdv0j2yi05c" path="res://scripts/actors/PartyMovement.cs" id="1_21rd6"]
+[ext_resource type="Texture2D" uid="uid://dqkfnn7qqndrc" path="res://assets/tilemaps/colored-transparent_packed.png" id="2_3vj3b"]
+
+[node name="Party" type="Node2D"]
+script = ExtResource("1_21rd6")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_3vj3b")
+centered = false
+region_enabled = true
+region_rect = Rect2(400, 0, 16, 16)
