@@ -12,10 +12,8 @@ public partial class PartyMovement : Node2D
 	public Vector2I CurrentPosition { get; private set; }
 
 	private bool _isMoving;
-	private Vector2 _halfTileSize; // Store as Vector2 for convenience
-	private Vector2I _actualTileSize; // Store the actual tile dimensions
-
-	// In PartyMovement.cs
+	private Vector2 _halfTileSize;
+	private Vector2I _actualTileSize;
 
 	public override void _Ready()
 	{
@@ -34,18 +32,12 @@ public partial class PartyMovement : Node2D
 		}
 
 		_actualTileSize = MapLayer.TileSet.TileSize;
-		// --- Add this log ---
 		GD.Print($"PartyMovement: TileSet.TileSize is {_actualTileSize}. Tile Width: {_actualTileSize.X}, Tile Height: {_actualTileSize.Y}");
-		// --------------------
 
 		_halfTileSize = new Vector2(_actualTileSize.X / 2.0f, _actualTileSize.Y / 2.0f);
-		// --- Add this log ---
 		GD.Print($"PartyMovement: Calculated _halfTileSize is {_halfTileSize}.");
-		// --------------------
 
 
-		// Initial position based on where it's placed in the editor
-		// Ensure GlobalPosition is what you expect before this conversion
 		GD.Print($"PartyMovement: Initial GlobalPosition before LocalToMap: {GlobalPosition}");
 		CurrentPosition = MapLayer.LocalToMap(GlobalPosition); 
 		GD.Print($"PartyMovement: Initial CurrentPosition (map coords) after LocalToMap: {CurrentPosition}");
@@ -99,16 +91,13 @@ public partial class PartyMovement : Node2D
 
 		tween.Finished += () => OnMoveFinished(targetGridCoords);
 
-		// GD.Print($"Moving from {CurrentPosition} to {targetGridCoords}");
 	}
 
 	private void OnMoveFinished(Vector2I newGridCoords)
 	{
 		CurrentPosition = newGridCoords;
 		_isMoving = false;
-		// Optional: Re-snap to ensure perfect alignment, especially if sub-pixel issues arise.
-		// SnapToGrid(CurrentPosition); 
-		// GD.Print($"Movement finished. New coords: {CurrentPosition}");
+
 	}
 
 	private bool IsTileWalkable(Vector2I gridCoords)
