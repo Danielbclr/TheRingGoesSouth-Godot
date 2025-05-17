@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bs42yptirscdy"]
+
+[ext_resource type="Script" uid="uid://bbs1df81paf1f" path="res://scripts/actors/PlayerUnit.cs" id="1_e4pnn"]
+[ext_resource type="Texture2D" uid="uid://dqkfnn7qqndrc" path="res://assets/tilemaps/colored-transparent_packed.png" id="2_sy3ri"]
+
+[node name="PlayerUnit" type="Node2D"]
+script = ExtResource("1_e4pnn")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_sy3ri")
+centered = false
+region_enabled = true
+region_rect = Rect2(432, 0, 16, 16)

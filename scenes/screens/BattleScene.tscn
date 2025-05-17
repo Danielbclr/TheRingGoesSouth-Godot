@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://bu85n55q873h2"]
+
+[ext_resource type="Script" uid="uid://bypvndq5wgqxy" path="res://scripts/scenes/BattleScene.cs" id="1_j0j5a"]
+[ext_resource type="PackedScene" uid="uid://byh1416petixh" path="res://assets/tilemaps/battle_map.tmx" id="2_5nxj4"]
+[ext_resource type="PackedScene" uid="uid://bs42yptirscdy" path="res://scenes/actors/PlayerUnit.tscn" id="2_t28c1"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_j0j5a")
+PlayerUnitScene = ExtResource("2_t28c1")
+
+[node name="battle_map" parent="." instance=ExtResource("2_5nxj4")]
+
+[node name="Camera2D" type="Camera2D" parent="battle_map"]
+position = Vector2(169, 161)
+zoom = Vector2(2.015, 2.015)
