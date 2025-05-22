@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://dlawq477ujctl"]
+
+[ext_resource type="Script" uid="uid://0jv65lne3mqi" path="res://scripts/actors/PartyHexMovement.cs" id="1_82la2"]
+[ext_resource type="Texture2D" uid="uid://dqkfnn7qqndrc" path="res://assets/tilemaps/colored-transparent_packed.png" id="2_q8p7g"]
+
+[node name="HexParty" type="Node2D"]
+script = ExtResource("1_82la2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_q8p7g")
+region_enabled = true
+region_rect = Rect2(400, 0, 16, 16)
