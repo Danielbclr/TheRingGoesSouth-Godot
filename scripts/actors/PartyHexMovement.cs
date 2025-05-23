@@ -3,6 +3,7 @@ using Godot;
 using Godot.Collections;
 
 using System;
+using System.Collections.Generic;
 
 using System.Threading.Tasks;
 public partial class PartyHexMovement : Node2D
@@ -48,7 +49,7 @@ public partial class PartyHexMovement : Node2D
         {
             GD.Print("Highlighting adjacent tiles.");
             ClearHighlights();
-            HighlightAdjacentTiles();
+            HighlightTilesInRange(3);
         }
         else if (Input.IsActionJustPressed("highlight_lines"))
         {
@@ -121,11 +122,11 @@ public partial class PartyHexMovement : Node2D
     {
         Vector2I mouseTilePosition = MapLayer.LocalToMap(mousePosition);
         Vector2 mouseTileData = MapLayer.GetCellAtlasCoords(mouseTilePosition);
-        if (mouseTileData == new Vector2(-1, -1))
-        {
-            GD.Print("Invalid tile");
-            return null;
-        }
+        // if (mouseTileData == new Vector2(-1, -1))
+        // {
+        //     GD.Print("Invalid tile");
+        //     return null;
+        // }
         GD.Print($"Mouse tile position: {mouseTilePosition}");
         Vector2 tilePosition = MapLayer.MapToLocal(mouseTilePosition);
         GD.Print($"GetTileGlobalPosition: Tile position: {tilePosition}");
@@ -204,7 +205,7 @@ public partial class PartyHexMovement : Node2D
     private bool HasTile(Vector2I tilePosition)
     {
         GD.Print($"Checking tile: {tilePosition}");
-        return MapLayer.GetCellAtlasCoords(tilePosition) != new Vector2(-1, -1);
+        return MapLayer.GetCellAtlasCoords(tilePosition) != null;
     }
 
     private void HighlightPath(Array<Vector2I> movementArray)
@@ -279,6 +280,48 @@ public partial class PartyHexMovement : Node2D
                 else
                 {
                     break;
+                }
+            }
+        }
+    }
+
+    private void HighlightTilesInRange(int rangeLimit)
+    {
+        Vector2I startCoord = GetCurrentTilePosition();
+
+        Queue<(Vector2I coord, int distance)> queue = new();
+        HashSet<Vector2I> visitedCoords = new(); // To avoid processing/highlighting the same tile multiple times
+
+        if (!HasTile(startCoord))
+        {
+            GD.PrintErr($"Player start tile {startCoord} is invalid for range highlight.");
+            return;
+        }
+
+        queue.Enqueue((startCoord, 0));
+        visitedCoords.Add(startCoord);
+
+        while (queue.Count > 0)
+        {
+            var (currentCellCoord, currentDistance) = queue.Dequeue();
+
+            // Highlight this cell as it's confirmed to be in range
+            // (Could add a check here to not highlight the startCoord itself if desired)
+            // if (currentCellCoord != startCoord || rangeLimit == 0) // Example: don't highlight start unless range is 0
+            CreateHighlightInstanceAtMapCoord(currentCellCoord);
+
+            if (currentDistance < rangeLimit) // Only expand if we haven't reached the range limit
+            {
+                foreach (Vector2I dir in _hexDirections)
+                {
+                    Vector2I neighborCoord = currentCellCoord + dir;
+
+                    // Check if neighbor is valid and not visited yet
+                    if (HasTile(neighborCoord) && !visitedCoords.Contains(neighborCoord))
+                    {
+                        visitedCoords.Add(neighborCoord); // Mark as visited
+                        queue.Enqueue((neighborCoord, currentDistance + 1)); // Add to queue for processing
+                    }
                 }
             }
         }
