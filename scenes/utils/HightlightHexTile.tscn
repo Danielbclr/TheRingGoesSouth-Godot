@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bf0r5r67qy1g"]
+
+[ext_resource type="Script" uid="uid://dtf1y12q2qnv" path="res://scripts/utils/HighlightHexTile.cs" id="1_nxtk2"]
+
+[node name="HightlightHexTile" type="Node2D"]
+script = ExtResource("1_nxtk2")
+HighlightColor = Color(0.682959, 0.499868, 0.141046, 0.768627)

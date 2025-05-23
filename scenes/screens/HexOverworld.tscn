@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://c6a5droe7nigt"]
+[gd_scene load_steps=4 format=3 uid="uid://c6a5droe7nigt"]
 
 [ext_resource type="PackedScene" uid="uid://c254jjj8yfubn" path="res://scenes/screens/hex_grid.tscn" id="1_dogas"]
 [ext_resource type="PackedScene" uid="uid://dlawq477ujctl" path="res://scenes/actors/HexParty.tscn" id="2_xfpfi"]
+[ext_resource type="PackedScene" uid="uid://bf0r5r67qy1g" path="res://scenes/utils/HightlightHexTile.tscn" id="3_xfpfi"]
 
 [node name="Node2D" type="Node2D"]
 
@@ -12,7 +13,8 @@ position = Vector2(5, -49)
 position = Vector2(-13, -6)
 MapLayer = NodePath("../HexGrid")
 MoveDelay = 0.3
-offset = Vector2(-12, -3)
+offset = Vector2(-11, -4.5)
+HighlightScene = ExtResource("3_xfpfi")
 
 [node name="Camera2D" type="Camera2D" parent="HexParty"]
 zoom = Vector2(3, 3)
