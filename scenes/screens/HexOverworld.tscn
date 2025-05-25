@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://c254jjj8yfubn" path="res://scenes/screens/hex_grid.tscn" id="1_dogas"]
 [ext_resource type="PackedScene" uid="uid://dlawq477ujctl" path="res://scenes/actors/HexParty.tscn" id="2_xfpfi"]
-[ext_resource type="PackedScene" uid="uid://bf0r5r67qy1g" path="res://scenes/utils/HightlightHexTile.tscn" id="3_xfpfi"]
+[ext_resource type="PackedScene" uid="uid://dw1d6na1pxtg4" path="res://scenes/utils/HightlightHexTile.tscn" id="3_xfpfi"]
 
 [node name="Node2D" type="Node2D"]
 
