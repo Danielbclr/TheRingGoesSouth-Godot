@@ -13,6 +13,7 @@ public partial class BattleScene : Node2D
 	[Export] public TileMapLayer _battleGrid;
 	[Export] public float MoveDelayPerTile { get; set; } = 0.25f; // Movement speed
 	[Export] public int PlayerMoveRange { get; set; } = 3;
+	[Export] public Camera2D camera2D;
 
 	private Array<PlayerUnit> _playerUnits = new();
 	private int _currentPlayerIndex = -1;
@@ -64,6 +65,7 @@ public partial class BattleScene : Node2D
 
 	public override void _Ready()
 	{
+		camera2D = GetNode<Camera2D>("Camera2D");
 		if (_battleGrid == null)
 		{
 			GD.PrintErr("BattleScene: TileMap node '_battleGrid' not found or not assigned!");
@@ -134,10 +136,6 @@ public partial class BattleScene : Node2D
 
 	private void NextTurn()
 	{
-		if (_activePlayerUnit != null)
-		{
-			// GD.Print($"{_activePlayerUnit.CharacterData.CharacterName}'s turn ended.");
-		}
 
 		_highlightTileHelper.ClearHighlights();
 		_validMoveLocations.Clear();
@@ -146,6 +144,16 @@ public partial class BattleScene : Node2D
 		_currentPlayerIndex = (_currentPlayerIndex + 1) % _playerUnits.Count;
 		_activePlayerUnit = _playerUnits[_currentPlayerIndex];
 		_currentBattleState = BattleTurnState.PlayerTurnStarting;
+
+		// Smoothly move the camera to the active unit's position
+		camera2D.Reparent(this); // Ensure camera is not parented to a moving unit
+		camera2D.MakeCurrent(); // Ensure camera is active
+
+		// Tween the camera's position to the active unit
+		Tween tween = CreateTween();
+		tween.TweenProperty(camera2D, "global_position", _activePlayerUnit.GlobalPosition, 0.5f)
+			.SetEase(Tween.EaseType.Out)
+			.SetTrans(Tween.TransitionType.Sine);
 
 		GD.Print($"--- {_activePlayerUnit.CharacterData.CharacterName}'s Turn ---");
 		// TODO: Update UI to show active player, enable action buttons etc.
