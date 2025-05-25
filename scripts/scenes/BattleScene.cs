@@ -8,12 +8,12 @@ public partial class BattleScene : Node2D // Inherits from Node2D as per scene r
 	[Export]
 	public PackedScene PlayerUnitScene { get; set; } // Export to link PlayerUnit.tscn in editor
 
-	private TileMapLayer _battleGrid;
+	[Export] public TileMapLayer _battleGrid;
 
 	public override void _Ready()
 	{
 		// Get references to nodes
-		_battleGrid = GetNode<TileMapLayer>("battle_map");
+		// _battleGrid = GetNode<TileMapLayer>("battle_hex_map");
 
 		if (_battleGrid == null)
 		{
@@ -84,7 +84,7 @@ public partial class BattleScene : Node2D // Inherits from Node2D as per scene r
 			// We need the TileMap's tile size for this
 			Vector2I tileSize = _battleGrid.TileSet.TileSize;
 			Vector2 halfTileSize = new Vector2(tileSize.X / 2.0f, tileSize.Y / 2.0f);
-			Vector2 worldPosition = _battleGrid.MapToLocal(gridPosition) + halfTileSize;
+			Vector2 worldPosition = _battleGrid.MapToLocal(gridPosition); // Adjust for tile offset
 
 			playerUnit.GlobalPosition = worldPosition; // Set the global position
 			// Or if PlayerUnit root is Node2D and BattleScene root is Node2D at (0,0):

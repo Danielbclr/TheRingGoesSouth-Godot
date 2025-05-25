@@ -7,9 +7,11 @@ using System.Collections.Generic;
 
 using System.Threading.Tasks;
 using TheRingGoesSouth.scripts.utils;
-public partial class PartyHexMovement : Node2D
-
+public partial class PartyHexMovement : Node2D, ILoggable
 {
+    [Export]
+    public bool DEBUG_TAG { get; set; } = false;
+    
     [Export]
     public TileMapLayer MapLayer { get; set; }
     [Export]
@@ -50,19 +52,19 @@ public partial class PartyHexMovement : Node2D
     {
         if (Input.IsActionJustPressed("highlight_adjacent"))
         {
-            GD.Print("Highlighting adjacent tiles.");
+            Logger.Log(this, "Highlighting adjacent tiles.");
             ClearHighlights();
             HighlightTilesInRange(3);
         }
         else if (Input.IsActionJustPressed("highlight_lines"))
         {
-            GD.Print("Highlighting lines.");
+            Logger.Log(this, "Highlighting lines.");
             ClearHighlights();
             HighlightStraightLines(3); // Highlight 3 tiles deep
         }
         else if (Input.IsActionJustPressed("clear_highlights_action")) // Optional: A key to manually clear
         {
-            GD.Print("Clearing highlights manually.");
+            Logger.Log(this, "Clearing highlights manually.");
             ClearHighlights();
         }
         else if (Input.IsActionPressed("left_click"))
@@ -71,7 +73,7 @@ public partial class PartyHexMovement : Node2D
         }
         else if (Input.IsActionJustReleased("left_click"))
         {
-            GD.Print("Left click released");
+            Logger.Log(this, "Left click released");
             _ = Move();
         }
     }
@@ -84,11 +86,11 @@ public partial class PartyHexMovement : Node2D
     {
         Vector2 mousePosition = GetGlobalMousePosition() - offset;
         Vector2I? isTargetValid = GetTileGlobalPosition(mousePosition);
-        GD.Print($"Mouse position: {mousePosition}");
-        GD.Print($"Target position: {isTargetValid}");
+        Logger.Log(this, $"Mouse position: {mousePosition}");
+        Logger.Log(this, $"Target position: {isTargetValid}");
         if (isTargetValid == null)
         {
-            GD.Print("Invalid target");
+            Logger.Log(this, "Invalid target");
             return;
         }
         ClearHighlights();
@@ -109,9 +111,9 @@ public partial class PartyHexMovement : Node2D
             Vector2 targetTilePosition = (Vector2I)(playerTilePosition + move);
             Vector2 targetPosition = MapLayer.MapToLocal((Vector2I)targetTilePosition) + offset;
             //HighlightTile((Vector2I)targetPosition);
-            GD.Print($"Player at {playerTilePosition}");
-            GD.Print($"Target at {targetTilePosition}");
-            GD.Print($"Moving to {targetPosition}");
+            Logger.Log(this, $"Player at {playerTilePosition}");
+            Logger.Log(this, $"Target at {targetTilePosition}");
+            Logger.Log(this, $"Moving to {targetPosition}");
             Tween tween = CreateTween();
             tween.TweenProperty(this, "global_position", targetPosition, MoveDelay);
             tween.SetEase(Tween.EaseType.Out);
@@ -124,15 +126,10 @@ public partial class PartyHexMovement : Node2D
     private Vector2I? GetTileGlobalPosition(Vector2 mousePosition)
     {
         Vector2I mouseTilePosition = MapLayer.LocalToMap(mousePosition);
-        Vector2 mouseTileData = MapLayer.GetCellAtlasCoords(mouseTilePosition);
-        // if (mouseTileData == new Vector2(-1, -1))
-        // {
-        //     GD.Print("Invalid tile");
-        //     return null;
-        // }
-        GD.Print($"Mouse tile position: {mouseTilePosition}");
+        // Vector2 mouseTileData = MapLayer.GetCellAtlasCoords(mouseTilePosition);
+        Logger.Log(this, $"Global tile position: {mouseTilePosition}");
         Vector2 tilePosition = MapLayer.MapToLocal(mouseTilePosition);
-        GD.Print($"GetTileGlobalPosition: Tile position: {tilePosition}");
+        Logger.Log(this, $"GetTileGlobalPosition: Tile position: {tilePosition}");
         return (Vector2I)tilePosition;
     }
     
@@ -141,8 +138,8 @@ public partial class PartyHexMovement : Node2D
         Array<Vector2I> route = [];
         Vector2 direction = MapLayer.LocalToMap(targetPosition) - MapLayer.LocalToMap(GlobalPosition);
         Vector2 currentTilePosition = MapLayer.LocalToMap(GlobalPosition);
-        GD.Print($"Direction: {direction}");
-        GD.Print($"Current tile position: {currentTilePosition}");
+        Logger.Log(this, $"Direction: {direction}");
+        Logger.Log(this, $"Current tile position: {currentTilePosition}");
         while (direction != Vector2I.Zero)
         {
             Vector2 newPoint = Normalize(direction);
@@ -167,12 +164,12 @@ public partial class PartyHexMovement : Node2D
                 {
                     if (point == Vector2I.Zero)
                     {
-                        GD.Print("Zero point");
+                        Logger.Log(this, "Zero point");
                         continue;
                     }
                     if (HasTile((Vector2I)(currentTilePosition + point)))
                     {
-                        GD.Print($"Found point: {point}");
+                        Logger.Log(this, $"Found point: {point}");
                         newPoint = point;
                     }
                 }
@@ -185,7 +182,7 @@ public partial class PartyHexMovement : Node2D
     }
     private Vector2 Normalize(Vector2 vector)
     {
-        GD.Print($"Normalizing vector: {vector}");
+        Logger.Log(this, $"Normalizing vector: {vector}");
         if (vector[0] > 0)
         {
             vector[0] = 1;
@@ -202,12 +199,12 @@ public partial class PartyHexMovement : Node2D
         {
             vector[1] = -1;
         }
-        GD.Print($"Normalized vector: {vector}");
+        Logger.Log(this, $"Normalized vector: {vector}");
         return vector;
     }
     private bool HasTile(Vector2I tilePosition)
     {
-        GD.Print($"Checking tile: {tilePosition}");
+        Logger.Log(this, $"Checking tile: {tilePosition}");
         return MapLayer.GetCellAtlasCoords(tilePosition) != null;
     }
 
