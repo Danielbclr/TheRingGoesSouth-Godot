@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace TheRingGoesSouth.scripts.utils
 {
-    public class TileGetter
+    public static class TileGetter
     {
         private static Vector2I[] _hexDirections =
         [
@@ -60,7 +60,7 @@ namespace TheRingGoesSouth.scripts.utils
                 var (currentCellCoord, currentDistance) = queue.Dequeue();
 
                 tiles.Add(currentCellCoord);
-                
+
                 if (currentDistance < rangeLimit) // Only expand if we haven't reached the range limit
                 {
                     foreach (Vector2I dir in _hexDirections)
@@ -81,6 +81,76 @@ namespace TheRingGoesSouth.scripts.utils
                 tiles.RemoveAt(0); // Remove the starting tile if not needed
             }
             return tiles;
+        }
+
+        public static Array<Vector2I> GetRoute(Vector2 startingPosition, Vector2 targetPosition, TileMapLayer MapLayer)
+        {
+            Array<Vector2I> route = [];
+            Vector2 direction = MapLayer.LocalToMap(targetPosition) - MapLayer.LocalToMap(startingPosition);
+            Vector2 currentTilePosition = MapLayer.LocalToMap(startingPosition);
+            while (direction != Vector2I.Zero)
+            {
+                Vector2 newPoint = Normalize(direction);
+                if (newPoint[0] * newPoint[1] == 1)
+                {
+                    Vector2 newDirection = new(0, newPoint[1]);
+                    if (!HasTile((Vector2I)newDirection, MapLayer))
+                    {
+                        newPoint[1] = 0;
+                    }
+                    else
+                    {
+                        newPoint[0] = 0;
+                    }
+                }
+                if (!HasTile((Vector2I)(currentTilePosition + newPoint), MapLayer))
+                {
+                    Array<Vector2I> points = [];
+                    points.Add((Vector2I)new Vector2(0, newPoint[1]));
+                    points.Add((Vector2I)new Vector2(newPoint[0], 0));
+                    foreach (Vector2I point in points)
+                    {
+                        if (point == Vector2I.Zero)
+                        {
+                            continue;
+                        }
+                        if (HasTile((Vector2I)(currentTilePosition + point), MapLayer))
+                        {
+                            newPoint = point;
+                        }
+                    }
+                }
+                route.Add((Vector2I)newPoint);
+                direction -= newPoint;
+                currentTilePosition += newPoint;
+            }
+            return route;
+        }
+
+        private static Vector2 Normalize(Vector2 vector)
+        {
+            if (vector[0] > 0)
+            {
+                vector[0] = 1;
+            }
+            else if (vector[0] < 0)
+            {
+                vector[0] = -1;
+            }
+            if (vector[1] > 0)
+            {
+                vector[1] = 1;
+            }
+            else if (vector[1] < 0)
+            {
+                vector[1] = -1;
+            }
+            return vector;
+        }
+        
+        private static bool HasTile(Vector2I tilePosition, TileMapLayer MapLayer)
+        {
+            return MapLayer.GetCellAtlasCoords(tilePosition) != null;
         }
     }
 }

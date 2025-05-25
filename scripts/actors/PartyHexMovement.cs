@@ -94,7 +94,7 @@ public partial class PartyHexMovement : Node2D, ILoggable
             return;
         }
         ClearHighlights();
-        _movementArray = GetRoute(mousePosition);
+        _movementArray = TileGetter.GetRoute(GlobalPosition, mousePosition, MapLayer);
         HighlightPath(_movementArray);
     }
     private async Task Move()
@@ -110,7 +110,6 @@ public partial class PartyHexMovement : Node2D, ILoggable
             Vector2 playerTilePosition = GetCurrentTilePosition();
             Vector2 targetTilePosition = (Vector2I)(playerTilePosition + move);
             Vector2 targetPosition = MapLayer.MapToLocal((Vector2I)targetTilePosition) + offset;
-            //HighlightTile((Vector2I)targetPosition);
             Logger.Log(this, $"Player at {playerTilePosition}");
             Logger.Log(this, $"Target at {targetTilePosition}");
             Logger.Log(this, $"Moving to {targetPosition}");
@@ -133,81 +132,6 @@ public partial class PartyHexMovement : Node2D, ILoggable
         return (Vector2I)tilePosition;
     }
     
-    private Array<Vector2I> GetRoute(Vector2 targetPosition)
-    {
-        Array<Vector2I> route = [];
-        Vector2 direction = MapLayer.LocalToMap(targetPosition) - MapLayer.LocalToMap(GlobalPosition);
-        Vector2 currentTilePosition = MapLayer.LocalToMap(GlobalPosition);
-        Logger.Log(this, $"Direction: {direction}");
-        Logger.Log(this, $"Current tile position: {currentTilePosition}");
-        while (direction != Vector2I.Zero)
-        {
-            Vector2 newPoint = Normalize(direction);
-            if (newPoint[0] * newPoint[1] == 1)
-            {
-                Vector2 newDirection = new(0, newPoint[1]);
-                if (!HasTile((Vector2I)newDirection))
-                {
-                    newPoint[1] = 0;
-                }
-                else
-                {
-                    newPoint[0] = 0;
-                }
-            }
-            if (!HasTile((Vector2I)(currentTilePosition + newPoint)))
-            {
-                Array<Vector2I> points = [];
-                points.Add((Vector2I)new Vector2(0, newPoint[1]));
-                points.Add((Vector2I)new Vector2(newPoint[0], 0));
-                foreach (Vector2I point in points)
-                {
-                    if (point == Vector2I.Zero)
-                    {
-                        Logger.Log(this, "Zero point");
-                        continue;
-                    }
-                    if (HasTile((Vector2I)(currentTilePosition + point)))
-                    {
-                        Logger.Log(this, $"Found point: {point}");
-                        newPoint = point;
-                    }
-                }
-            }
-            route.Add((Vector2I)newPoint);
-            direction -= newPoint;
-            currentTilePosition += newPoint;
-        }
-        return route;
-    }
-    private Vector2 Normalize(Vector2 vector)
-    {
-        Logger.Log(this, $"Normalizing vector: {vector}");
-        if (vector[0] > 0)
-        {
-            vector[0] = 1;
-        }
-        else if (vector[0] < 0)
-        {
-            vector[0] = -1;
-        }
-        if (vector[1] > 0)
-        {
-            vector[1] = 1;
-        }
-        else if (vector[1] < 0)
-        {
-            vector[1] = -1;
-        }
-        Logger.Log(this, $"Normalized vector: {vector}");
-        return vector;
-    }
-    private bool HasTile(Vector2I tilePosition)
-    {
-        Logger.Log(this, $"Checking tile: {tilePosition}");
-        return MapLayer.GetCellAtlasCoords(tilePosition) != null;
-    }
-
     private void HighlightPath(Array<Vector2I> movementArray)
     {
         ClearHighlights();

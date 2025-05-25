@@ -1,13 +1,16 @@
 using Godot;
 using System;
+using TheRingGoesSouth.scripts.utils;
 
-public partial class HighlightHexTile : Node2D
+public partial class HighlightHexTile : Node2D, ILoggable
 {
+	[Export]
+	public bool DEBUG_TAG { get; set; } = false;
 	[Export] public Color HighlightColor { get; set; } = new Color(1, 1, 0, 0.5f);
 
 	public override void _Draw()
 	{
-		GD.Print($"Highlighting tile at CurrentPosition: {GlobalPosition}");
+		Logger.Log(this, $"Highlighting tile at CurrentPosition: {GlobalPosition}");
 		DrawColoredPolygon(new Vector2[]
 		{
 			new Vector2(0, -10.5f),     // N

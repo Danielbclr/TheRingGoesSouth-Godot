@@ -4,11 +4,13 @@ using System;
 
 namespace TheRingGoesSouth.scripts.utils
 {
-    public class HighlightTileHelper
+    public class HighlightTileHelper : ILoggable
     {
+        [Export]
+        public bool DEBUG_TAG { get; set; } = false;
         [Export] public PackedScene HighlightTileScene { get; set; } = GD.Load<PackedScene>("res://scenes/utils/HighlightHexTile.tscn");
         [Export] public TileMapLayer MapLayer { get; set; } = null;
-        [Export] public Vector2 offset = new Vector2(0, -6);
+        [Export] public Vector2 offset = new Vector2(0, -0);
         [Export] public Color HighlightColor { get; set; } = new Color(1, 0.5f, 0, 0.5f);
         private Array<HighlightHexTile> _highlightedTiles = [];
         private Node _parentNode;
