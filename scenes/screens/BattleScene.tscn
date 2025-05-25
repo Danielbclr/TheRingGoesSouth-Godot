@@ -7,8 +7,10 @@
 [node name="Node2D" type="Node2D"]
 
 [node name="BattleHexMap" parent="." instance=ExtResource("1_j0j5a")]
+z_index = -10
 
 [node name="HexParty" parent="." node_paths=PackedStringArray("MapLayer") instance=ExtResource("2_5nxj4")]
+z_index = 1
 position = Vector2(1, 20)
 MapLayer = NodePath("../BattleHexMap")
 HighlightScene = ExtResource("3_5nxj4")
