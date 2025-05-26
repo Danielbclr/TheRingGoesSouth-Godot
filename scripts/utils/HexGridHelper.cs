@@ -9,7 +9,7 @@ namespace TheRingGoesSouth.scripts.utils
     /// Provides helper methods for working with hexagonal tile maps, including tile selection,
     /// pathfinding, and range calculations for Godot TileMap layers.
     /// </summary>
-    public static class HexTileHelper
+    public static class HexGridHelper
     {
         private static Vector2I[] _hexDirections =
         [

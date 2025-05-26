@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq; // For HashSet
 using System.Threading.Tasks;
+using TheRingGoesSouth.scripts.actors;
+using TheRingGoesSouth.scripts.data;
 using TheRingGoesSouth.scripts.utils;
 
 public partial class BattleScene : Node2D, ILoggable
@@ -20,6 +22,8 @@ public partial class BattleScene : Node2D, ILoggable
 	private Camera2D camera2D;
 
 	private Array<PlayerUnit> _playerUnits = [];
+	private Array<EnemyUnit> _enemyUnits = [];
+
 	private int _currentPlayerIndex = -1;
 	private PlayerUnit _activePlayerUnit;
 	private HighlightTileHelper _highlightTileHelper;
@@ -43,7 +47,7 @@ public partial class BattleScene : Node2D, ILoggable
 	};
 
 	private readonly Vector2I[] _battleHexDirections = {
-		new(0, -1), new(1, -1), new(1, 0), 
+		new(0, -1), new(1, -1), new(1, 0),
 		new(0, 1), new(-1, 1), new(-1, 0)
 	};
 
@@ -71,6 +75,8 @@ public partial class BattleScene : Node2D, ILoggable
 		GD.Print("BattleScene: Initializing battle scene.");
 		PlacePartyMembers();
 
+		SpawnEnemies();
+
 		if (_playerUnits.Count > 0)
 		{
 			StartBattle();
@@ -97,13 +103,13 @@ public partial class BattleScene : Node2D, ILoggable
 		{
 			CharacterData character = party[i];
 			Vector2I gridPosition = startingPositions[i];
-			
+
 			PlayerUnit playerUnit = PlayerUnitScene.Instantiate<PlayerUnit>();
-			playerUnit.Setup(character, _battleGrid, gridPosition); 
-			
+			playerUnit.Setup(character, _battleGrid, gridPosition);
+
 			AddChild(playerUnit);
 			_playerUnits.Add(playerUnit);
-			
+
 			GD.Print($"BattleScene: Placed {character.CharacterName} at map {gridPosition}, world {playerUnit.GlobalPosition}.");
 		}
 		GD.Print($"BattleScene: Placed {_playerUnits.Count} party members on the grid.");
@@ -162,7 +168,7 @@ public partial class BattleScene : Node2D, ILoggable
 				{
 					GD.Print($"Move confirmed to: {clickedTile}");
 
-					_currentMovePath = HexTileHelper.GetRoute(_activePlayerUnit.GlobalPosition, GetGlobalMousePosition(), _battleGrid);
+					_currentMovePath = HexGridHelper.GetRoute(_activePlayerUnit.GlobalPosition, GetGlobalMousePosition(), _battleGrid);
 					if (_currentMovePath.Count > 0 || clickedTile == _activePlayerUnit.GridPosition) // Allow clicking self to "pass" move
 					{
 						_highlightTileHelper.ClearHighlights();
@@ -182,15 +188,15 @@ public partial class BattleScene : Node2D, ILoggable
 			}
 		}
 	}
-	
+
 	private void InitiateMoveSelection()
 	{
 		GD.Print("Selecting move target...");
 		_validMoveLocations = GetTilesInRangeForUnit(_activePlayerUnit.GridPosition, PlayerMoveRange);
-		
+
 		// For highlighting, we want to show all reachable tiles.
 		// The GetTilesInRangeForUnit already filters by walkability.
-		_highlightTileHelper.HighlightCollection(_validMoveLocations); 
+		_highlightTileHelper.HighlightCollection(_validMoveLocations);
 		GD.Print($"Found {_validMoveLocations.Count} valid move locations.");
 	}
 
@@ -218,9 +224,9 @@ public partial class BattleScene : Node2D, ILoggable
 			await ToSignal(tween, Tween.SignalName.Finished);
 			unit.SetGridPosition(currentLogicalMapPos, true); // Update logical pos after each step visually completes
 		}
-		
+
 		// Ensure final position is accurate
-		unit.SetGridPosition(finalTargetMapPos, true); 
+		unit.SetGridPosition(finalTargetMapPos, true);
 
 		_currentBattleState = BattleTurnState.TurnEnding;
 		NextTurn();
@@ -232,9 +238,13 @@ public partial class BattleScene : Node2D, ILoggable
 		{
 			return false;
 		}
-		foreach(var unit in _playerUnits)
+		foreach (var unit in _playerUnits)
 		{
 			if (unit.GridPosition == tileMapPosition && unit != _activePlayerUnit) return false; // Occupied
+		}
+		foreach(var unit in _enemyUnits) // Also check against enemy units
+		{
+			if (unit.GridPosition == tileMapPosition) return false; // Occupied by an enemy
 		}
 
 		return true;
@@ -289,5 +299,41 @@ public partial class BattleScene : Node2D, ILoggable
 			pathTilesToHighlight.Add(currentMapPos);
 		}
 		_highlightTileHelper.HighlightCollection(pathTilesToHighlight);
+	}
+	
+	private void SpawnEnemies()
+	{
+		// Example: Spawning a Goblin Scout
+		string enemyIdToSpawn = "goblin_scout";
+		Vector2I spawnPosition = new Vector2I(8, 5); // Example position
+
+		EnemyData goblinData = EnemyDataLoader.GetEnemyData(enemyIdToSpawn);
+
+		if (goblinData == null)
+		{
+			GD.PrintErr($"BattleScene: Could not find enemy data for ID '{enemyIdToSpawn}'. Skipping spawn.");
+			return;
+		}
+
+		PackedScene enemyScene = ResourceLoader.Load<PackedScene>(goblinData.ScenePath);
+		if (enemyScene == null)
+		{
+			GD.PrintErr($"BattleScene: Could not load scene for enemy '{goblinData.Name}' at path '{goblinData.ScenePath}'. Skipping spawn.");
+			return;
+		}
+
+		EnemyUnit enemyUnit = enemyScene.Instantiate<EnemyUnit>();
+		if (enemyUnit == null)
+		{
+			GD.PrintErr($"BattleScene: Failed to instantiate scene for enemy '{goblinData.Name}'. Ensure the root node has the EnemyUnit script.");
+			return;
+		}
+
+		enemyUnit.Setup(goblinData, _battleGrid, spawnPosition);
+
+		AddChild(enemyUnit);
+		_enemyUnits.Add(enemyUnit);
+		
+		GD.Print($"BattleScene: Spawned {goblinData.Name} at map {spawnPosition}, world {enemyUnit.GlobalPosition}.");
 	}
 }

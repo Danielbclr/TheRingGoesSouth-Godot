@@ -86,7 +86,7 @@ public partial class PartyHexMovement : Node2D, ILoggable
     private void GetMovementArray()
     {
         Vector2 mousePosition = GetGlobalMousePosition() - offset;
-        Vector2I? validTilePosition = HexTileHelper.GetTileGlobalPosition(mousePosition, MapLayer);
+        Vector2I? validTilePosition = HexGridHelper.GetTileGlobalPosition(mousePosition, MapLayer);
         Logger.Log($"Mouse position: {mousePosition}");
         Logger.Log($"Target position: {validTilePosition}");
         if (validTilePosition == null)
@@ -95,7 +95,7 @@ public partial class PartyHexMovement : Node2D, ILoggable
             return;
         }
         highlightTileHelper.ClearHighlights();
-        _movementArray = HexTileHelper.GetRoute(GlobalPosition, mousePosition, MapLayer);
+        _movementArray = HexGridHelper.GetRoute(GlobalPosition, mousePosition, MapLayer);
         HighlightPath(_movementArray);
     }
     private async Task Move()
@@ -127,19 +127,19 @@ public partial class PartyHexMovement : Node2D, ILoggable
     private void HighlightPath(Array<Vector2I> movementArray)
     {
         highlightTileHelper.ClearHighlights();
-        Array<Vector2I> movementTiles = HexTileHelper.GetPathFromMovementArray(movementArray, MapLayer, GlobalPosition, offset);
+        Array<Vector2I> movementTiles = HexGridHelper.GetPathFromMovementArray(movementArray, MapLayer, GlobalPosition, offset);
         highlightTileHelper.HighlightCollection(movementTiles);
     }
 
     private void HighlightStraightLines(int depth)
     {
-        HexTileHelper.GetStraightTiles(GetCurrentTilePosition(), depth);
-        highlightTileHelper.HighlightCollection(HexTileHelper.GetStraightTiles(GetCurrentTilePosition(), depth));
+        HexGridHelper.GetStraightTiles(GetCurrentTilePosition(), depth);
+        highlightTileHelper.HighlightCollection(HexGridHelper.GetStraightTiles(GetCurrentTilePosition(), depth));
     }
 
     private void HighlightTilesInRange(int rangeLimit)
     {
-        Array<Vector2I> tiles = HexTileHelper.GetTilesInRange(GetCurrentTilePosition(), rangeLimit);
+        Array<Vector2I> tiles = HexGridHelper.GetTilesInRange(GetCurrentTilePosition(), rangeLimit);
         highlightTileHelper.HighlightCollection(tiles); 
     }
     

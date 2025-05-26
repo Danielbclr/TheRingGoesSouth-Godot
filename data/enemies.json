@@ -1,0 +1,23 @@
+[
+  {
+    "Id": "goblin_scout",
+    "Name": "Goblin Scout",
+    "MaxHealth": 15,
+    "Attack": 4,
+    "Defense": 1,
+    "Speed": 12,
+    "ScenePath": "res://scenes/actors/enemies/GoblinScoutUnit.tscn",
+    "MoveRange": 4
+  },
+  {
+    "Id": "orc_warrior",
+    "Name": "Orc Warrior",
+    "MaxHealth": 40,
+    "Attack": 7,
+    "Defense": 3,
+    "Speed": 8,
+    "ScenePath": "res://scenes/actors/enemies/OrcWarriorUnit.tscn",
+    "MoveRange": 3
+  }
+
+]

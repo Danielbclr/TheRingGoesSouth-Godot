@@ -11,9 +11,9 @@ public partial class CharacterData : Resource
     public int CharacterLevel { get; set; } = 1;
     public Dictionary<StatType, int> CharacterStats { get; set; } = [];
     public int CurrentHealth { get; set; }
-    public List<string> CharacterSkills { get; set; } = new List<string>();
-    public List<string> CharacterPerks { get; set; } = new List<string>();
-    public List<string> CurrentSkills { get; set; } = new List<string>();
+    public List<string> CharacterSkills { get; set; } = [];
+    public List<string> CharacterPerks { get; set; } = [];
+    public List<string> CurrentSkills { get; set; } = [];
 
 
     public CharacterData()

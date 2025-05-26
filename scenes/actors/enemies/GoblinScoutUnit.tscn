@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://brtef0di428dl"]
+
+[ext_resource type="Texture2D" uid="uid://020rsqmkbvqw" path="res://assets/tilemaps/monochrome-transparent_packed.png" id="1_7vpbq"]
+[ext_resource type="Script" uid="uid://t7mnt5ahjf1q" path="res://scripts/actors/battle/GoblinScoutUnit.cs" id="2_1gg3b"]
+
+[node name="GoblinScoutUnit" type="Node2D"]
+script = ExtResource("2_1gg3b")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("1_7vpbq")
+region_enabled = true
+region_rect = Rect2(432, 32, 16, 16)
+script = ExtResource("2_1gg3b")

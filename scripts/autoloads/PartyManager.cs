@@ -9,9 +9,9 @@ public partial class PartyManager : Node
     private static PartyManager _instance;
     public static PartyManager Instance => _instance;
 
-    public List<CharacterData> PartyMembers { get; private set; } = new List<CharacterData>();
+    public List<CharacterData> PartyMembers { get; private set; } = [];
 
-    private int maxPartySize = 6;
+    private int maxPartySize { get; set; } = 6;
     private int battlePartySize = 4;
 
     public override void _EnterTree()
