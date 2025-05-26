@@ -41,16 +41,16 @@ public partial class PartyManager : Node
     private void LoadInitialParty()
     {
         GD.Print("GameSetup: Creating initial party...");
-        CreateAndAddCharacter(0, "Aragorn", "warrior");
-        CreateAndAddCharacter(1, "Legolas", "rogue");
+        CreateAndAddCharacter(0, "Aragorn", "dun_ranger");
+        CreateAndAddCharacter(1, "Legolas", "wood_fighter");
         // PartyManager.Instance.CreateAndAddCharacter("Gimli", "warrior");
         // PartyManager.Instance.CreateAndAddCharacter("Gandalf", "mage"); // Add a "mage" class
 
         // You can now access the party:
         foreach (var member in PartyMembers)
         {
-            GD.Print($"Party Member: {member.CharacterName}, Class: {member.CharacterClasses[0].ClassName}, HP: {member.CurrentHealth}/{member.getMaxHealth()}");
-            GD.Print($"  Stats: Str={member.GetStat(StatType.Strength)}, Dex={member.GetStat(StatType.Dexterity)}");
+            GD.Print($"Party Member: {member.CharacterName}, Class: {member.CharacterClasses[0].Name}, HP: {member.CurrentHealth}/{member.getMaxHealth()}");
+            GD.Print($"  Stats: Str={member.GetStat(StatType.PHY)}, Dex={member.GetStat(StatType.AGI)}");
             GD.Print($"  Skills: {string.Join(", ", member.CharacterSkills)}");
         }
     }
@@ -81,21 +81,13 @@ public partial class PartyManager : Node
     // Example of how you might create an initial party
     public void CreateAndAddCharacter(int id, string name, string classId)
     {
-        if (ClassDataManager.Instance == null)
+        if (CharacterDataManager.Instance == null)
         {
-            GD.PrintErr("PartyManager: ClassDataManager is not ready!");
+            GD.PrintErr("PartyManager: CharacterDataManager is not ready!");
             return;
         }
 
-        ClassData charClassDef = ClassDataManager.Instance.GetClassDefinition(classId);
-        if (charClassDef != null)
-        {
-            CharacterData newChar = new CharacterData(id, name, charClassDef);
-            AddPartyMember(newChar);
-        }
-        else
-        {
-            GD.PrintErr($"PartyManager: Could not find class definition for ID '{classId}' when creating {name}.");
-        }
+        CharacterData newChar = CharacterDataManager.Instance.LoadCharacterFromClass(name, classId);
+        AddPartyMember(newChar);
     }
 }

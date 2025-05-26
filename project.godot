@@ -17,7 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-ClassDataManager="*res://scripts/autoloads/ClassDataManager.cs"
+CharacterDataManager="*res://scripts/autoloads/CharacterDataManager.cs"
 PartyManager="*res://scripts/autoloads/PartyManager.cs"
 
 [dotnet]

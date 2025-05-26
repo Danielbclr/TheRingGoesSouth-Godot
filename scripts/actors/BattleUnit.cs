@@ -32,7 +32,7 @@ namespace TheRingGoesSouth.scripts.actors
             _combatMap = combatMap;
 
             SetGridPosition(initialGridPosition, true); // Set initial position without animation
-            GD.Print($"BattleUnit: Setting up unit for {CharacterData.CharacterName} ({CharacterData.CharacterClasses[0].ClassName}) at {GridPosition}");
+            GD.Print($"BattleUnit: Setting up unit for {CharacterData.CharacterName} ({CharacterData.CharacterClasses[0].Name}) at {GridPosition}");
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace TheRingGoesSouth.scripts.actors
             }
         }
         
-        public Vector2 GetGlobalPosition()
+        public new Vector2 GetGlobalPosition()
         {
             return GlobalPosition;
         }

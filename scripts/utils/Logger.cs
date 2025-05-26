@@ -56,16 +56,16 @@ namespace TheRingGoesSouth.scripts.utils
 		/// <summary>
 		/// Logs a message for the specified class name if <paramref name="debugTag"/> is <c>false</c>.
 		/// </summary>
-		/// <param name="className">The class name to log for.</param>
+		/// <param name="Name">The class name to log for.</param>
 		/// <param name="message">The message to log.</param>
 		/// <param name="debugTag">If <c>true</c>, logging is skipped. If <c>false</c>, the message is logged.</param>
-		public static void Log(String className, string message, bool debugTag = true)
+		public static void Log(String Name, string message, bool debugTag = true)
 		{
 			if (debugTag)
 			{
 				return;
 			}
-			GD.Print($"[{className}]: {message}");
+			GD.Print($"[{Name}]: {message}");
 		}
 
 	}

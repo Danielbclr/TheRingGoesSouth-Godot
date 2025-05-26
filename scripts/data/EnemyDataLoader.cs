@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using TheRingGoesSouth.scripts.data; // Assuming EnemyData.cs is in this namespace
 
-namespace TheRingGoesSouth.scripts.utils
+namespace TheRingGoesSouth.scripts.data
 {
     public static class EnemyDataLoader
     {

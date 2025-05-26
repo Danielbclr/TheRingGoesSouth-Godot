@@ -1,0 +1,28 @@
+[
+    {
+        "Id": "dun_ranger",
+        "Name": "Dunedain Ranger",
+        "Description": "A skilled ranger from the North, adept at survival and combat in the wilds.",
+        "BaseStats": {
+            "PHY" : 3,
+            "AGI" : 4,
+            "INT" : 4,
+            "PSY" : 2
+        },
+        "Skills" : ["slash", "cleave"],
+        "Perks" : ["forager"]
+    },
+    {
+        "Id": "wood_fighter",
+        "Name": "Woodland Warrior",
+        "Description": "A fierce fighter from the forests, skilled in both melee and ranged combat.",
+        "BaseStats": {
+            "PHY" : 4,
+            "AGI" : 5,
+            "INT" : 2,
+            "PSY" : 2
+        },
+        "Skills" : ["precise_shot"],
+        "Perks" : ["scout_ahead"]
+    }
+]
