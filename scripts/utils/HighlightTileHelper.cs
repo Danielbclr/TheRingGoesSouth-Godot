@@ -40,7 +40,7 @@ namespace TheRingGoesSouth.scripts.utils
                 instance.HighlightColor = HighlightColor;
                 instance.GlobalPosition = tileWorldPosition;
 
-                _parentNode.AddChild(instance); // Add as sibling to PartyHexMovement
+                _parentNode.AddChild(instance);
                 _highlightedTiles.Add(instance);
             }
         }

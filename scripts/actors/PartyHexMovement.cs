@@ -11,6 +11,7 @@ public partial class PartyHexMovement : Node2D, ILoggable
 {
     [Export]
     public bool DEBUG_TAG { get; set; } = false;
+    private Logger Logger;
     
     [Export]
     public TileMapLayer MapLayer { get; set; }
@@ -42,9 +43,9 @@ public partial class PartyHexMovement : Node2D, ILoggable
             SetProcessInput(false);
             return;
         }
+        Logger = new Logger(this);
         highlightTileHelper = new HighlightTileHelper(GetParent(), MapLayer);
         highlightTileHelper.offset = offset;
-        // Initialize hex directions array
         _hexDirections = [HEX_NE, HEX_E, HEX_SE, HEX_SW, HEX_W, HEX_NW];
     }
 
@@ -52,20 +53,20 @@ public partial class PartyHexMovement : Node2D, ILoggable
     {
         if (Input.IsActionJustPressed("highlight_adjacent"))
         {
-            Logger.Log(this, "Highlighting adjacent tiles.");
-            ClearHighlights();
+            Logger.Log("Highlighting adjacent tiles.");
+            highlightTileHelper.ClearHighlights();
             HighlightTilesInRange(3);
         }
         else if (Input.IsActionJustPressed("highlight_lines"))
         {
-            Logger.Log(this, "Highlighting lines.");
-            ClearHighlights();
-            HighlightStraightLines(3); // Highlight 3 tiles deep
+            Logger.Log("Highlighting lines.");
+            highlightTileHelper.ClearHighlights();
+            HighlightStraightLines(3);
         }
-        else if (Input.IsActionJustPressed("clear_highlights_action")) // Optional: A key to manually clear
+        else if (Input.IsActionJustPressed("clear_highlights_action"))
         {
-            Logger.Log(this, "Clearing highlights manually.");
-            ClearHighlights();
+            Logger.Log("Clearing highlights manually.");
+            highlightTileHelper.ClearHighlights();
         }
         else if (Input.IsActionPressed("left_click"))
         {
@@ -73,7 +74,7 @@ public partial class PartyHexMovement : Node2D, ILoggable
         }
         else if (Input.IsActionJustReleased("left_click"))
         {
-            Logger.Log(this, "Left click released");
+            Logger.Log("Left click released");
             _ = Move();
         }
     }
@@ -85,16 +86,16 @@ public partial class PartyHexMovement : Node2D, ILoggable
     private void GetMovementArray()
     {
         Vector2 mousePosition = GetGlobalMousePosition() - offset;
-        Vector2I? isTargetValid = GetTileGlobalPosition(mousePosition);
-        Logger.Log(this, $"Mouse position: {mousePosition}");
-        Logger.Log(this, $"Target position: {isTargetValid}");
-        if (isTargetValid == null)
+        Vector2I? validTilePosition = HexTileHelper.GetTileGlobalPosition(mousePosition, MapLayer);
+        Logger.Log($"Mouse position: {mousePosition}");
+        Logger.Log($"Target position: {validTilePosition}");
+        if (validTilePosition == null)
         {
-            Logger.Log(this, "Invalid target");
+            Logger.Log("Invalid target");
             return;
         }
-        ClearHighlights();
-        _movementArray = TileGetter.GetRoute(GlobalPosition, mousePosition, MapLayer);
+        highlightTileHelper.ClearHighlights();
+        _movementArray = HexTileHelper.GetRoute(GlobalPosition, mousePosition, MapLayer);
         HighlightPath(_movementArray);
     }
     private async Task Move()
@@ -110,49 +111,36 @@ public partial class PartyHexMovement : Node2D, ILoggable
             Vector2 playerTilePosition = GetCurrentTilePosition();
             Vector2 targetTilePosition = (Vector2I)(playerTilePosition + move);
             Vector2 targetPosition = MapLayer.MapToLocal((Vector2I)targetTilePosition) + offset;
-            Logger.Log(this, $"Player at {playerTilePosition}");
-            Logger.Log(this, $"Target at {targetTilePosition}");
-            Logger.Log(this, $"Moving to {targetPosition}");
+            Logger.Log($"Player at {playerTilePosition}");
+            Logger.Log($"Target at {targetTilePosition}");
+            Logger.Log($"Moving to {targetPosition}");
             Tween tween = CreateTween();
             tween.TweenProperty(this, "global_position", targetPosition, MoveDelay);
             tween.SetEase(Tween.EaseType.Out);
             tween.SetTrans(Tween.TransitionType.Expo);
             await ToSignal(tween, "finished");
         }
-        ClearHighlights();
+        highlightTileHelper.ClearHighlights();
         _isMoving = false;
-    }
-    private Vector2I? GetTileGlobalPosition(Vector2 mousePosition)
-    {
-        Vector2I mouseTilePosition = MapLayer.LocalToMap(mousePosition);
-        // Vector2 mouseTileData = MapLayer.GetCellAtlasCoords(mouseTilePosition);
-        Logger.Log(this, $"Global tile position: {mouseTilePosition}");
-        Vector2 tilePosition = MapLayer.MapToLocal(mouseTilePosition);
-        Logger.Log(this, $"GetTileGlobalPosition: Tile position: {tilePosition}");
-        return (Vector2I)tilePosition;
     }
     
     private void HighlightPath(Array<Vector2I> movementArray)
     {
-        ClearHighlights();
-        Array<Vector2I> movementTiles = TileGetter.GetPathFromMovementArray(movementArray, MapLayer, GlobalPosition, offset);
+        highlightTileHelper.ClearHighlights();
+        Array<Vector2I> movementTiles = HexTileHelper.GetPathFromMovementArray(movementArray, MapLayer, GlobalPosition, offset);
         highlightTileHelper.HighlightCollection(movementTiles);
     }
 
     private void HighlightStraightLines(int depth)
     {
-        TileGetter.GetStraightTiles(GetCurrentTilePosition(), depth);
-        highlightTileHelper.HighlightCollection(TileGetter.GetStraightTiles(GetCurrentTilePosition(), depth));
+        HexTileHelper.GetStraightTiles(GetCurrentTilePosition(), depth);
+        highlightTileHelper.HighlightCollection(HexTileHelper.GetStraightTiles(GetCurrentTilePosition(), depth));
     }
 
     private void HighlightTilesInRange(int rangeLimit)
     {
-        Array<Vector2I> tiles = TileGetter.GetTilesInRange(GetCurrentTilePosition(), rangeLimit);
+        Array<Vector2I> tiles = HexTileHelper.GetTilesInRange(GetCurrentTilePosition(), rangeLimit);
         highlightTileHelper.HighlightCollection(tiles); 
     }
     
-    private void ClearHighlights()
-    {
-        highlightTileHelper.ClearHighlights();
-    }
 }

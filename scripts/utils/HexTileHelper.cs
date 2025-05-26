@@ -5,7 +5,11 @@ using System.Collections.Generic;
 
 namespace TheRingGoesSouth.scripts.utils
 {
-    public static class TileGetter
+    /// <summary>
+    /// Provides helper methods for working with hexagonal tile maps, including tile selection,
+    /// pathfinding, and range calculations for Godot TileMap layers.
+    /// </summary>
+    public static class HexTileHelper
     {
         private static Vector2I[] _hexDirections =
         [
@@ -16,6 +20,12 @@ namespace TheRingGoesSouth.scripts.utils
             new Vector2I(-1, 1), // SW
             new Vector2I(1, -1)  // NE
         ];
+        /// <summary>
+        /// Gets all tiles in straight lines from a starting coordinate in all hex directions up to a given depth.
+        /// </summary>
+        /// <param name="playerMapCoords">The starting tile coordinates.</param>
+        /// <param name="depth">How far to extend in each direction.</param>
+        /// <returns>An array of tile coordinates in straight lines from the start.</returns>
         public static Array<Vector2I> GetStraightTiles(Vector2I playerMapCoords, int depth)
         {
             Array<Vector2I> tiles = [];
@@ -30,6 +40,14 @@ namespace TheRingGoesSouth.scripts.utils
             return tiles;
         }
 
+        /// <summary>
+        /// Converts a movement array into a path of tile coordinates, applying an optional offset.
+        /// </summary>
+        /// <param name="movementArray">Array of movement vectors.</param>
+        /// <param name="MapLayer">The tile map layer to use for coordinate conversion.</param>
+        /// <param name="GlobalPosition">The starting global position.</param>
+        /// <param name="offset">Optional offset to apply to each step (default is (0, -6)).</param>
+        /// <returns>An array of tile coordinates representing the path.</returns>
         public static Array<Vector2I> GetPathFromMovementArray(Array<Vector2I> movementArray, TileMapLayer MapLayer, Vector2 GlobalPosition, Vector2? offset = null)
         {
             if (offset == null)
@@ -46,11 +64,18 @@ namespace TheRingGoesSouth.scripts.utils
             return path;
         }
 
+        /// <summary>
+        /// Gets all tile coordinates within a given range of a starting coordinate.
+        /// </summary>
+        /// <param name="startCoord">The starting tile coordinate.</param>
+        /// <param name="rangeLimit">The maximum range (distance) to include.</param>
+        /// <param name="addCurrentTile">If true, includes the starting tile in the result; otherwise, excludes it.</param>
+        /// <returns>An array of tile coordinates within the specified range.</returns>
         public static Array<Vector2I> GetTilesInRange(Vector2I startCoord, int rangeLimit, bool addCurrentTile = false)
         {
             Array<Vector2I> tiles = [];
             Queue<(Vector2I coord, int distance)> queue = new();
-            HashSet<Vector2I> visitedCoords = new(); // To avoid processing/highlighting the same tile multiple times
+            HashSet<Vector2I> visitedCoords = new();
 
             queue.Enqueue((startCoord, 0));
             visitedCoords.Add(startCoord);
@@ -61,28 +86,34 @@ namespace TheRingGoesSouth.scripts.utils
 
                 tiles.Add(currentCellCoord);
 
-                if (currentDistance < rangeLimit) // Only expand if we haven't reached the range limit
+                if (currentDistance < rangeLimit)
                 {
                     foreach (Vector2I dir in _hexDirections)
                     {
                         Vector2I neighborCoord = currentCellCoord + dir;
 
-                        // Check if neighbor is valid and not visited yet
                         if (!visitedCoords.Contains(neighborCoord))
                         {
-                            visitedCoords.Add(neighborCoord); // Mark as visited
-                            queue.Enqueue((neighborCoord, currentDistance + 1)); // Add to queue for processing
+                            visitedCoords.Add(neighborCoord);
+                            queue.Enqueue((neighborCoord, currentDistance + 1));
                         }
                     }
                 }
             }
             if (!addCurrentTile)
             {
-                tiles.RemoveAt(0); // Remove the starting tile if not needed
+                tiles.RemoveAt(0);
             }
             return tiles;
         }
 
+        /// <summary>
+        /// Calculates a route of tile steps from a starting position to a target position on a hex grid.
+        /// </summary>
+        /// <param name="startingPosition">The starting position in local coordinates.</param>
+        /// <param name="targetPosition">The target position in local coordinates.</param>
+        /// <param name="MapLayer">The tile map layer to use for coordinate conversion and tile checks.</param>
+        /// <returns>An array of movement vectors representing the route.</returns>
         public static Array<Vector2I> GetRoute(Vector2 startingPosition, Vector2 targetPosition, TileMapLayer MapLayer)
         {
             Array<Vector2I> route = [];
@@ -94,7 +125,7 @@ namespace TheRingGoesSouth.scripts.utils
                 if (newPoint[0] * newPoint[1] == 1)
                 {
                     Vector2 newDirection = new(0, newPoint[1]);
-                    if (!HasTile((Vector2I)newDirection, MapLayer))
+                    if (!IsTileWalkable((Vector2I)newDirection, MapLayer))
                     {
                         newPoint[1] = 0;
                     }
@@ -103,7 +134,7 @@ namespace TheRingGoesSouth.scripts.utils
                         newPoint[0] = 0;
                     }
                 }
-                if (!HasTile((Vector2I)(currentTilePosition + newPoint), MapLayer))
+                if (!IsTileWalkable((Vector2I)(currentTilePosition + newPoint), MapLayer))
                 {
                     Array<Vector2I> points = [];
                     points.Add((Vector2I)new Vector2(0, newPoint[1]));
@@ -114,7 +145,7 @@ namespace TheRingGoesSouth.scripts.utils
                         {
                             continue;
                         }
-                        if (HasTile((Vector2I)(currentTilePosition + point), MapLayer))
+                        if (IsTileWalkable((Vector2I)(currentTilePosition + point), MapLayer))
                         {
                             newPoint = point;
                         }
@@ -127,7 +158,12 @@ namespace TheRingGoesSouth.scripts.utils
             return route;
         }
 
-        private static Vector2 Normalize(Vector2 vector)
+        /// <summary>
+        /// Normalizes a vector so that each component is -1, 0, or 1.
+        /// </summary>
+        /// <param name="vector">The vector to normalize.</param>
+        /// <returns>The normalized vector.</returns>
+        public static Vector2 Normalize(Vector2 vector)
         {
             if (vector[0] > 0)
             {
@@ -147,10 +183,27 @@ namespace TheRingGoesSouth.scripts.utils
             }
             return vector;
         }
-        
-        private static bool HasTile(Vector2I tilePosition, TileMapLayer MapLayer)
+
+        /// <summary>
+        /// Checks if a tile exists at the given position in the specified tile map layer.
+        /// </summary>
+        /// <param name="tilePosition">The tile coordinates to check.</param>
+        /// <param name="MapLayer">The tile map layer to check in.</param>
+        /// <returns>True if a tile exists at the position; otherwise, false.</returns>
+        public static bool IsTileWalkable(Vector2I tilePosition, TileMapLayer MapLayer)
         {
-            return MapLayer.GetCellAtlasCoords(tilePosition) != null;
+            if (MapLayer.GetCellSourceId(tilePosition) == -1)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static Vector2I? GetTileGlobalPosition(Vector2 globalPosition, TileMapLayer MapLayer)
+        {
+            Vector2I tilePosition = MapLayer.LocalToMap(globalPosition);
+            Vector2 tileGlobalPosition = MapLayer.MapToLocal(tilePosition);
+            return (Vector2I)tileGlobalPosition;
         }
     }
 }

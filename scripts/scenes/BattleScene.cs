@@ -1,21 +1,25 @@
-// C:/Users/nihan/Documents/Projetos/the-ring-goes-south/scripts/scenes/BattleScene.cs
+
 using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq; // For HashSet
 using System.Threading.Tasks;
-using TheRingGoesSouth.scripts.utils; // For HighlightTileHelper and Logger (if you have one)
+using TheRingGoesSouth.scripts.utils;
 
-public partial class BattleScene : Node2D
+public partial class BattleScene : Node2D, ILoggable
 {
-	[Export] public PackedScene PlayerUnitScene { get; set; }
-	[Export] public TileMapLayer _battleGrid;
-	[Export] public float MoveDelayPerTile { get; set; } = 0.25f; // Movement speed
-	[Export] public int PlayerMoveRange { get; set; } = 3;
-	[Export] public Camera2D camera2D;
+	[Export] public bool DEBUG_TAG { get; set; } = false;
 
-	private Array<PlayerUnit> _playerUnits = new();
+	[Export] public PackedScene PlayerUnitScene { get; set; }
+
+	[Export] public float MoveDelayPerTile { get; set; } = 0.25f;
+	[Export] public int PlayerMoveRange { get; set; } = 3;
+	[Export] public TileMapLayer _battleGrid;
+
+	private Camera2D camera2D;
+
+	private Array<PlayerUnit> _playerUnits = [];
 	private int _currentPlayerIndex = -1;
 	private PlayerUnit _activePlayerUnit;
 	private HighlightTileHelper _highlightTileHelper;
@@ -31,32 +35,13 @@ public partial class BattleScene : Node2D
 	private BattleTurnState _currentBattleState = BattleTurnState.None;
 
 	private Array<Vector2I> _validMoveLocations = new();
-	private Array<Vector2I> _currentMovePath = new(); // Stores deltas
+	private Array<Vector2I> _currentMovePath = new();
 
-	// Hex directions (ensure these match your battle grid's logic)
-	// These are relative steps in map coordinates.
-	// Example for "pointy top" hexes, offset coordinates:
-	// Even-q (q is column, r is row)
-	// private readonly Vector2I[] _hexDirections = {
-	//     new Vector2I(1, 0), new Vector2I(0, -1), new Vector2I(-1, -1), // E, NE, NW
-	//     new Vector2I(-1, 0), new Vector2I(-1, 1), new Vector2I(0, 1)   // W, SW, SE
-	// };
-	// Or for "flat top" hexes, offset coordinates:
-	// Even-r (q is column, r is row)
 	private readonly Vector2I[] _hexDirections = {
 		new Vector2I(1, -1), new Vector2I(0, -1), new Vector2I(-1, 0), // NE, N, NW
 		new Vector2I(-1, 1), new Vector2I(0, 1), new Vector2I(1, 0)    // SW, S, SE
 	};
-	// If your PartyHexMovement used different directions, ensure these are consistent
-	// with your TileSet's "Tile Shape" and "Tile Layout" for neighbor calculations.
-	// The ones from PartyHexMovement:
-	// private readonly Vector2I HEX_NE = new(0, -1); // N-ish for pointy top, NE for flat top
-	// private readonly Vector2I HEX_NW = new(-1, 0); // NW for pointy top, W for flat top
-	// private readonly Vector2I HEX_SE = new(1, 0);  // SE for pointy top, E for flat top
-	// private readonly Vector2I HEX_SW = new(0, 1);  // S-ish for pointy top, SW for flat top
-	// private readonly Vector2I HEX_W = new(-1, 1); // SW for pointy top, NW for flat top
-	// private readonly Vector2I HEX_E = new(1, -1);  // NE for pointy top, N for flat top
-	// Let's use the PartyHexMovement ones for consistency with its GetRoute logic
+
 	private readonly Vector2I[] _battleHexDirections = {
 		new(0, -1), new(1, -1), new(1, 0), 
 		new(0, 1), new(-1, 1), new(-1, 0)
@@ -82,8 +67,7 @@ public partial class BattleScene : Node2D
 			GetTree().Quit(); return;
 		}
 
-		_highlightTileHelper = new HighlightTileHelper(this, _battleGrid); // Highlights are children of BattleScene
-
+		_highlightTileHelper = new HighlightTileHelper(this, _battleGrid);
 		GD.Print("BattleScene: Initializing battle scene.");
 		PlacePartyMembers();
 
@@ -115,13 +99,11 @@ public partial class BattleScene : Node2D
 			Vector2I gridPosition = startingPositions[i];
 			
 			PlayerUnit playerUnit = PlayerUnitScene.Instantiate<PlayerUnit>();
-			// Pass combat map and initial grid position for setup
 			playerUnit.Setup(character, _battleGrid, gridPosition); 
 			
 			AddChild(playerUnit);
 			_playerUnits.Add(playerUnit);
 			
-			// PlayerUnit.Setup now handles its own positioning via SetGridPosition
 			GD.Print($"BattleScene: Placed {character.CharacterName} at map {gridPosition}, world {playerUnit.GlobalPosition}.");
 		}
 		GD.Print($"BattleScene: Placed {_playerUnits.Count} party members on the grid.");
@@ -129,8 +111,8 @@ public partial class BattleScene : Node2D
 
 	private void StartBattle()
 	{
-		_currentPlayerIndex = -1; // Will be incremented to 0 by NextTurn
-		_currentBattleState = BattleTurnState.TurnEnding; // To trigger NextTurn
+		_currentPlayerIndex = -1;
+		_currentBattleState = BattleTurnState.TurnEnding;
 		NextTurn();
 	}
 
@@ -145,19 +127,16 @@ public partial class BattleScene : Node2D
 		_activePlayerUnit = _playerUnits[_currentPlayerIndex];
 		_currentBattleState = BattleTurnState.PlayerTurnStarting;
 
-		// Smoothly move the camera to the active unit's position
-		camera2D.Reparent(this); // Ensure camera is not parented to a moving unit
-		camera2D.MakeCurrent(); // Ensure camera is active
+		camera2D.Reparent(this);
+		camera2D.MakeCurrent();
 
-		// Tween the camera's position to the active unit
 		Tween tween = CreateTween();
 		tween.TweenProperty(camera2D, "global_position", _activePlayerUnit.GlobalPosition, 0.5f)
 			.SetEase(Tween.EaseType.Out)
 			.SetTrans(Tween.TransitionType.Sine);
 
 		GD.Print($"--- {_activePlayerUnit.CharacterData.CharacterName}'s Turn ---");
-		// TODO: Update UI to show active player, enable action buttons etc.
-		// For now, directly go to awaiting action
+
 		_currentBattleState = BattleTurnState.PlayerTurnReady;
 		InitiateMoveSelection();
 		GD.Print("Choose action: (S)kip Turn");
@@ -178,21 +157,15 @@ public partial class BattleScene : Node2D
 			if (@event.IsActionPressed("left_click"))
 			{
 				Vector2I clickedTile = _battleGrid.LocalToMap(GetGlobalMousePosition());
-				// If BattleScene itself is offset, or _battleGrid is deeply nested, you might need:
-				// Vector2 localClickPos = _battleGrid.ToLocal(GetGlobalMousePosition());
-				// Vector2I clickedTile = _battleGrid.LocalToMap(localClickPos);
 
 				if (_validMoveLocations.Contains(clickedTile))
 				{
 					GD.Print($"Move confirmed to: {clickedTile}");
-					// _currentMovePath = GetRouteForUnit(_activePlayerUnit.GridPosition, clickedTile);
 
-					_currentMovePath = TileGetter.GetRoute(_activePlayerUnit.GlobalPosition, GetGlobalMousePosition(), _battleGrid);
+					_currentMovePath = HexTileHelper.GetRoute(_activePlayerUnit.GlobalPosition, GetGlobalMousePosition(), _battleGrid);
 					if (_currentMovePath.Count > 0 || clickedTile == _activePlayerUnit.GridPosition) // Allow clicking self to "pass" move
 					{
-						_highlightTileHelper.ClearHighlights(); // Clear range highlights
-																// Optionally, highlight the chosen path
-																// HighlightPath(_activePlayerUnit.GridPosition, _currentMovePath); 
+						_highlightTileHelper.ClearHighlights();
 						_currentBattleState = BattleTurnState.PlayerMoving;
 						_ = ExecuteMoveAsync(_activePlayerUnit, _currentMovePath, clickedTile);
 					}
@@ -255,16 +228,10 @@ public partial class BattleScene : Node2D
 
 	private bool IsTileWalkable(Vector2I tileMapPosition)
 	{
-		// Basic check: is there a tile source defined for this cell?
 		if (_battleGrid.GetCellSourceId(tileMapPosition) == -1)
 		{
-			return false; // No tile here, not walkable
+			return false;
 		}
-		// TODO: Add more sophisticated checks if needed:
-		// 1. TileData custom properties (e.g., "is_walkable")
-		//    TileData cellData = _battleGrid.GetCellTileData(tileMapPosition);
-		//    if (cellData != null && cellData.HasCustomData("walkable") && !cellData.GetCustomData("walkable").AsBool()) return false;
-		// 2. Check if tile is occupied by another unit (if units block movement)
 		foreach(var unit in _playerUnits)
 		{
 			if (unit.GridPosition == tileMapPosition && unit != _activePlayerUnit) return false; // Occupied
@@ -278,31 +245,27 @@ public partial class BattleScene : Node2D
 	/// </summary>
 	private Array<Vector2I> GetTilesInRangeForUnit(Vector2I startCoord, int rangeLimit)
 	{
-		Array<Vector2I> reachableTiles = new();
+		Array<Vector2I> reachableTiles = [];
 		Queue<(Vector2I coord, int distance)> queue = new();
-		HashSet<Vector2I> visitedCoords = new();
+		HashSet<Vector2I> visitedCoords = [];
 
 		if (!IsTileWalkable(startCoord)) return reachableTiles;
 
 		queue.Enqueue((startCoord, 0));
 		visitedCoords.Add(startCoord);
-		// Don't add startCoord to reachableTiles if unit shouldn't "move" to its own spot,
-		// but it should be highlightable as the origin.
-		// For movement, we usually want to highlight tiles *other* than the start.
-		// However, the BFS explores from start, so start is distance 0.
 
 		while (queue.Count > 0)
 		{
 			var (currentCellCoord, currentDistance) = queue.Dequeue();
 
-			if (currentCellCoord != startCoord) // Only add actual move locations
+			if (currentCellCoord != startCoord)
 			{
 				reachableTiles.Add(currentCellCoord);
 			}
 
 			if (currentDistance < rangeLimit)
 			{
-				foreach (Vector2I dir in _battleHexDirections) // Use battle-specific directions
+				foreach (Vector2I dir in _battleHexDirections)
 				{
 					Vector2I neighborCoord = currentCellCoord + dir;
 					if (IsTileWalkable(neighborCoord) && !visitedCoords.Contains(neighborCoord))
@@ -316,24 +279,8 @@ public partial class BattleScene : Node2D
 		return reachableTiles;
 	}
 
-	/// <summary>
-	/// Normalizes vector components to -1, 0, or 1. From PartyHexMovement.
-	/// </summary>
-	private Vector2 NormalizeHexComponents(Vector2 vector)
-	{
-		float x = 0, y = 0;
-		if (vector.X > 0) x = 1;
-		else if (vector.X < 0) x = -1;
-		if (vector.Y > 0) y = 1;
-		else if (vector.Y < 0) y = -1;
-		return new Vector2(x, y);
-	}
-
 	private void HighlightPath(Vector2I startMapPos, Array<Vector2I> movementDeltas)
 	{
-		// This method is optional if you only highlight the final target or full range
-		// If used, it should clear previous highlights first.
-		// _highlightTileHelper.ClearHighlights(); 
 		Array<Vector2I> pathTilesToHighlight = new();
 		Vector2I currentMapPos = startMapPos;
 		foreach (Vector2I moveDelta in movementDeltas)
