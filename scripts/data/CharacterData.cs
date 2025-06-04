@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using TheRingGoesSouth.scripts.data;
+using TheRingGoesSouth.scripts.data.skill;
 
 public partial class CharacterData : Resource
 {
@@ -12,9 +13,9 @@ public partial class CharacterData : Resource
 	public int CharacterLevel { get; set; } = 1;
 	public Dictionary<StatType, int> CharacterStats { get; set; } = [];
 	public int CurrentHealth { get; set; }
-	public List<string> CharacterSkills { get; set; } = [];
+	public List<SkillData> CharacterSkills { get; set; } = [];
 	public List<string> CharacterPerks { get; set; } = [];
-	public List<string> CurrentSkills { get; set; } = [];
+	public List<SkillData> CurrentSkills { get; set; } = [];
 
 
 	public CharacterData()
@@ -49,7 +50,8 @@ public partial class CharacterData : Resource
 
 		CurrentHealth = CharacterStats[StatType.PHY] + 8;
 
-		foreach (var skill in classData.ClassSkills)
+		GD.Print($"Initializing character {CharacterName} skills: {classData.Skills}");
+		foreach (var skill in classData.Skills)
 		{
 			LearnSkill(skill);
 		}
@@ -69,11 +71,16 @@ public partial class CharacterData : Resource
 		}
 	}
 
-	public void LearnSkill(string skill)
+	public void LearnSkill(String skillId)
 	{
-		if (!CharacterSkills.Contains(skill))
+		GD.Print($"Learning skill: {skillId} for character: {CharacterName}");
+		SkillData skillData = SkillDataLoader.GetSkillData(skillId);
+		GD.Print($"SkillData: {skillData}");
+		if (skillData != null && !CharacterSkills.Contains(skillData))
 		{
-			CharacterSkills.Add(skill);
+			CharacterSkills.Add(skillData);
+			GD.Print($"Skill {skillData.Name} learned by {CharacterName}.");
+			GD.Print($"Skill {skillData.Name} {skillData.Description}");
 		}
 	}
 

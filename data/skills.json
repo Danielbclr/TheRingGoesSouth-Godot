@@ -1,0 +1,87 @@
+[
+  {
+    "Id": "precise_shot_01",
+    "Name": "Precise Shot",
+    "Description": "A carefully aimed shot that deals moderate physical damage and has a chance to briefly lower the target's defense.",
+    "Targeting": {
+      "Type": "SingleEnemy",
+      "Range": 10,
+      "RequiresLineOfSight": true
+    },
+    "Effects": [
+      {
+        "Type": "Damage",
+        "DamageType": "Physical",
+        "BaseAmount": 12,
+        "ScalingStat": "Dexterity", 
+        "CanCrit": true,
+        "BonusCritChance": 0.15 
+      },
+      {
+        "Type": "StatModifier",
+        "TargetStat": "Defense", 
+        "Amount": -1,
+        "DurationTurns": 2
+      }
+    ]
+  },
+  {
+    "Id": "minor_heal_01",
+    "Name": "Minor Heal",
+    "Description": "A quick prayer that restores a small amount of health to an ally.",
+    "Targeting": {
+      "Type": "SingleAlly",
+      "Range": 6 
+    },
+    "Effects": [
+      {
+        "Type": "Heal",
+        "BaseAmount": 10,
+        "ScalingStat": "Wisdom"
+      }
+    ]
+  },
+  {
+    "Id": "warrior_shout_buff_01",
+    "Name": "Battle Cry",
+    "Description": "A fierce shout that temporarily boosts the Attack of the caster and nearby allies.",
+    "Targeting": {
+      "Type": "AreaOfEffect", 
+      "Range": 0, 
+      "AreaRadius": 3, 
+      "AffectsAllies": true, 
+      "AffectsEnemies": false 
+    },
+    "Effects": [
+      {
+        "Type": "StatModifier",
+        "TargetStat": "Attack", 
+        "Amount": 1,
+        "DurationTurns": 3
+      }
+    ]
+  },
+  {
+    "Id": "paralysis_debuff_01",
+    "Name": "Paralysing Shot",
+    "Description": "A shot that has a chance to paralyse the target, preventing them from acting for a short duration.",
+    "Targeting": {
+      "Type": "SingleEnemy", 
+      "Range": 6
+    },
+    "Effects": [
+        {
+            "Type": "Damage",
+            "DamageType": "Physical",
+            "BaseAmount": 6,
+            "ScalingStat": "Dexterity", 
+            "CanCrit": true
+        },
+        {
+            "Type": "StatusApply",
+            "StatusType": "Paralysis",
+            "DurationTurns": 1
+        }
+    ]
+  }
+]

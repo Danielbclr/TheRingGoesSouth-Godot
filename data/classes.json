@@ -9,7 +9,7 @@
             "INT" : 4,
             "PSY" : 2
         },
-        "Skills" : ["slash", "cleave"],
+        "Skills" : ["minor_heal_01", "warrior_shout_buff_01"],
         "Perks" : ["forager"]
     },
     {
@@ -22,7 +22,7 @@
             "INT" : 2,
             "PSY" : 2
         },
-        "Skills" : ["precise_shot"],
+        "Skills" : ["precise_shot_01", "paralysis_debuff_01"],
         "Perks" : ["scout_ahead"]
     }
 ]
