@@ -44,21 +44,21 @@ This project is a migration and continuation of a LibGDX-based prototype.
 This tracks features largely implemented in the original prototype and how they will be (or are being) realized in Godot.
 
 ### 🎮 1. Project Setup & Core Architecture
-*   [ ] Establish base Godot project structure.
+*   [x] Establish base Godot project structure.
 *   [X] Configure C# for game logic.
 ⚙️ **Godot Implementation:**
-    *   [ ] Main scene setup (`Main.tscn` or similar).
-    *   [ ] Global managers (e.g., `ResourceManager`, `PartyManager`, `GameEventBus`) as AutoLoad singletons (C# scripts).
+    *   [x] Main scene setup (`Main.tscn` or similar).
+    *   [x] Global managers (e.g., `ResourceManager`, `PartyManager`, `GameEventBus`) as AutoLoad singletons (C# scripts).
     *   [ ] Scene management system using `GetTree().ChangeSceneToFile()`.
 
 ### 🌍 2. Overworld Map System
-*   [ ] Grid-based map with a static layout loaded from Tiled.
+*   [x] Grid-based map with a static layout loaded from Tiled.
 *   [ ] Dynamic elements (weather, hazards).
 ⚙️ **Godot Implementation:**
-    *   [ ] `TileMap` node for rendering maps imported from TMX files (`battle_map.tmx`, `lotr_map.tmx`).
-    *   [ ] `Camera2D` node for map camera controls.
-    *   [ ] Party representation on map (e.g., a `Node2D` or `CharacterBody2D` based scene).
-    *   [ ] Input handling for party movement (C# script).
+    *   [x] `TileMap` node for rendering maps imported from TMX files (`battle_map.tmx`, `lotr_map.tmx`).
+    *   [x] `Camera2D` node for map camera controls.
+    *   [x] Party representation on map (e.g., a `Node2D` or `CharacterBody2D` based scene).
+    *   [x] Input handling for party movement (C# script).
     *   [ ] Map interactions (e.g., quest givers) using `Area2D` nodes or by checking `TileMap` tile data from scripts.
     *   [ ] Fog of War (e.g., using a secondary `TileMap` for overlay, shaders, or light/shadow system).
     *   [ ] Route calculation (`AStar2D` or custom pathfinding on `TileMap` data).
@@ -74,10 +74,10 @@ This tracks features largely implemented in the original prototype and how they 
 ### 🧑‍🤝‍🧑 4. Party System & RPG Logic
 *   [ ] Party members, classes, skills, basic leveling.
 ⚙️ **Godot Implementation:**
-    *   [ ] `GameCharacter.cs` (or similar) C# class for character data (stats, skills, etc.). Consider using custom `Resource` C# classes for editor integration of character templates.
-    *   [ ] `PartyManager.cs` (AutoLoad singleton) to manage the player's party.
-    *   [ ] `Skill.cs` (and related classes like `SkillEffect.cs`) for skill definitions, potentially loaded from JSON or custom `Resource` files.
-    *   [ ] `GameClass.cs` for class definitions.
+    *   [x] `GameCharacter.cs` (or similar) C# class for character data (stats, skills, etc.). Consider using custom `Resource` C# classes for editor integration of character templates.
+    *   [x] `PartyManager.cs` (AutoLoad singleton) to manage the player's party.
+    *   [x] `Skill.cs` (and related classes like `SkillEffect.cs`) for skill definitions, potentially loaded from JSON or custom `Resource` files.
+    *   [x] `GameClass.cs` for class definitions.
     *   [ ] Class Tree progression UI (using Godot `Control` nodes).
     *   [ ] XP and leveling mechanics fully integrated.
     *   [ ] Status effects system for characters.
@@ -93,15 +93,15 @@ This tracks features largely implemented in the original prototype and how they 
 ### 🔁 6. Turn-Based Combat (Tactics Style)
 *   [ ] 2D grid system, turn-based actions, skills, basic enemy AI.
 ⚙️ **Godot Implementation:**
-    *   [ ] `BattleScreen.tscn` as the main combat scene.
-    *   [ ] `TileMap` node for the battle grid.
-    *   [ ] Combatant scenes (`PlayerUnit.tscn`, `EnemyUnit.tscn`) with C# scripts (`BattleActor.cs` base class, `PlayerUnit.cs`, `EnemyUnit.cs`).
+    *   [x] `BattleScreen.tscn` as the main combat scene.
+    *   [x] `TileMap` node for the battle grid.
+    *   [x] Combatant scenes (`PlayerUnit.tscn`, `EnemyUnit.tscn`) with C# scripts (`BattleActor.cs` base class, `PlayerUnit.cs`, `EnemyUnit.cs`).
         *   These scenes would include `Sprite2D` or `AnimatedSprite2D` for visuals.
-    *   [ ] `TurnManager.cs` (or logic within `BattleScreen.cs`) to handle turn order and flow.
-    *   [ ] Input handling for selecting units, movement, and skills (in `BattleScreen.cs` or dedicated input handler script).
+    *   [x] `TurnManager.cs` (or logic within `BattleScreen.cs`) to handle turn order and flow.
+    *   [x] Input handling for selecting units, movement, and skills (in `BattleScreen.cs` or dedicated input handler script).
     *   [ ] Skill range and AoE highlighting (e.g., drawing on a `CanvasItem` or using another `TileMap` overlay).
     *   [ ] Basic enemy AI logic in `EnemyUnit.cs`.
-    *   [ ] Combat UI (`BattleUiManager.cs` or directly in `BattleScreen.cs`) using Godot `Control` nodes for action popups, health bars, turn indicators.
+    *   [x] Combat UI (`BattleUiManager.cs` or directly in `BattleScreen.cs`) using Godot `Control` nodes for action popups, health bars, turn indicators.
 
 ### 🏕️ 7. Rest System + Interactions
 *   [ ] Allow party to rest, restore, and trigger inter-character dialogs.
@@ -116,18 +116,18 @@ This tracks features largely implemented in the original prototype and how they 
 ⚙️ **Godot Implementation:**
     *   [ ] Scene2D.UI equivalent using Godot's `Control` nodes (e.g., `Panel`, `Button`, `Label`, `VBoxContainer`, `TextureRect`).
     *   [ ] `Theme` resources for consistent UI styling.
-    *   [ ] Battle action popup menu.
+    *   [x] Battle action popup menu.
     *   [ ] Tooltips for skills, items, UI elements.
     *   [ ] Inventory display and management UI.
     *   [ ] Basic mouse input support. Keyboard for shortcuts can be added.
 
 ### 📁 9. Data & Content Pipeline
-*   [ ] Content loaded via JSON (Quests, Skills, Enemies, Classes in original).
+*   [x] Content loaded via JSON (Quests, Skills, Enemies, Classes in original).
 ⚙️ **Godot Implementation:**
-    *   [ ] Loading data from JSON files using Godot's `Json` class in C# or `JSON.ParseString()`.
-    *   [ ] Consider creating custom C# `Resource` types (e.g., `SkillResource.cs`, `EnemyResource.cs`, `ItemResource.cs`) that can be created and edited directly in the Godot Inspector for better workflow. These can still be serialized/deserialized from JSON if needed or use Godot's binary resource format (`.tres`, `.res`).
-    *   [ ] Tiled maps (`.tmx`) imported via Godot's `TileMap` importer.
-    *   [ ] Spritesheets/Textures imported into Godot.
+    *   [x] Loading data from JSON files using Godot's `Json` class in C# or `JSON.ParseString()`.
+    *   [x] Consider creating custom C# `Resource` types (e.g., `SkillResource.cs`, `EnemyResource.cs`, `ItemResource.cs`) that can be created and edited directly in the Godot Inspector for better workflow. These can still be serialized/deserialized from JSON if needed or use Godot's binary resource format (`.tres`, `.res`).
+    *   [x] Tiled maps (`.tmx`) imported via Godot's `TileMap` importer.
+    *   [x] Spritesheets/Textures imported into Godot.
 
 ### 🧪 10. Testing & Debug Tools
 *   [ ] Basic logging.
