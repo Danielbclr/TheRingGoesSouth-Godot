@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://bijme6purwgbn"]
+
+[ext_resource type="Script" uid="uid://p5t1em0xpufu" path="res://scripts/ui/BattleSkillMenu.cs" id="1_ajjpa"]
+
+[node name="BattleSkillMenu" type="Control"]
+z_index = 2
+layout_mode = 3
+anchors_preset = 0
+mouse_force_pass_scroll_events = false
+script = ExtResource("1_ajjpa")
+
+[node name="SkillButtonContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+mouse_force_pass_scroll_events = false
+mouse_default_cursor_shape = 2

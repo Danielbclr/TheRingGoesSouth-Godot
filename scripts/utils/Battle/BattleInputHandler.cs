@@ -10,6 +10,7 @@ public partial class BattleInputHandler : Node2D
     private BattleGridHelper _hexGridUtility;
     private BattleMovementController _movementController;
     private HighlightTileHelper _highlightTileHelper;
+    private bool _blockInput = false;
 
     public event Action<Vector2I> OnMoveTargetSelected;
     public event Action OnSkipTurnRequested;
@@ -34,11 +35,17 @@ public partial class BattleInputHandler : Node2D
                 OnSkipTurnRequested?.Invoke();
             }
             
-            if (@event.IsActionPressed("left_click"))
+            if (@event.IsActionPressed("left_click") && !_blockInput)
             {
                 Vector2I clickedTile = _hexGridUtility.WorldToMap(GetGlobalMousePosition());
                 OnMoveTargetSelected?.Invoke(clickedTile);
             }
         }
     }
+
+    internal void blockInput(bool block)
+    {
+        _blockInput = block;
+    }
+
 }

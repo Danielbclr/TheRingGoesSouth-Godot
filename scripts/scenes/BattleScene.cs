@@ -1,7 +1,10 @@
+using System;
 using Godot;
 using Godot.Collections;
 using TheRingGoesSouth.scripts.actors;
+using TheRingGoesSouth.scripts.data.skill;
 using TheRingGoesSouth.scripts.utils;
+using TheRingGoesSouth.scripts.utils.Battle;
 
 public partial class BattleScene : Node2D, ILoggable
 {
@@ -19,6 +22,7 @@ public partial class BattleScene : Node2D, ILoggable
 	private BattleMovementController _movementController;
 	private BattleCameraController _cameraController;
 	private HighlightTileHelper _highlightTileHelper;
+	private BattleMenuHelper _battleMenuHelper;
 
 	// Data
 	private Array<PlayerUnit> _playerUnits = [];
@@ -67,8 +71,10 @@ public partial class BattleScene : Node2D, ILoggable
 		_movementController = new BattleMovementController { MoveDelayPerTile = MoveDelayPerTile, PlayerMoveRange = PlayerMoveRange };
 		_cameraController = new BattleCameraController();
 		_highlightTileHelper = new HighlightTileHelper(this, _battleGrid);
+		_battleMenuHelper = new BattleMenuHelper(this);
 
 		// Add components to scene tree
+		AddChild(_battleMenuHelper);
 		AddChild(_turnManager);
 		AddChild(_BattleGridHelper);
 		AddChild(_unitSpawner);
@@ -86,7 +92,49 @@ public partial class BattleScene : Node2D, ILoggable
 		_turnManager.OnTurnStarted += OnTurnStarted;
 		_inputHandler.OnMoveTargetSelected += OnMoveTargetSelected;
 		_inputHandler.OnSkipTurnRequested += OnSkipTurnRequested;
+		_battleMenuHelper.SkillSelected += OnSkillSelectedByPlayer;
+		_battleMenuHelper.MenuEntered += OnBattleMenuEntered;
 	}
+
+	private void OnBattleMenuEntered(bool entered)
+	{
+		_inputHandler.blockInput(entered);
+	}
+
+	private void OnSkillSelectedByPlayer(string skillId)
+	{
+		GD.Print($"BattleScene: Skill '{skillId}' selected by player via BattleMenuHelper.");
+
+		SkillData selectedSkillData = SkillDataLoader.GetSkillData(skillId);
+		if (selectedSkillData == null)
+		{
+			GD.PrintErr($"BattleScene: Could not retrieve data for selected skill ID: {skillId}");
+			return;
+		}
+
+		// TODO:
+		// 1. Check character resources (ManaCost, CooldownTurns)
+		// 2. Initiate targeting phase based on selectedSkillData.Targeting
+		// 3. Once target(s) are confirmed, apply skill effects.
+		// 4. Update UI, character states, and potentially end the turn or allow further actions.
+
+		GD.Print($"Executing skill: {selectedSkillData.Name}. Targeting: {selectedSkillData.Targeting.Type}");
+		// The BattleSkillMenu hides itself after selection.
+	}
+
+	// public override void _UnhandledInput(InputEvent @event)
+	// {
+	// 	// Example: Press 'K' to open the skill menu for the active player
+	// 	if (_turnManager.CurrentBattleState == BattleTurnManager.BattleTurnState.PlayerTurnReady && 
+	// 	    @event.IsActionPressed("ui_skill_menu")) // Define "ui_skill_menu" in Input Map (e.g., map to K key)
+	// 	{
+	// 		if (_battleMenuHelper != null && _turnManager.ActivePlayerUnit?.CharacterData != null)
+	// 		{
+	// 			_battleMenuHelper.DisplaySkillsForCharacter(_turnManager.ActivePlayerUnit);
+	// 			GetViewport().SetInputAsHandled();
+	// 		}
+	// 	}
+	// }
 
 	private void SpawnUnits()
 	{
@@ -123,6 +171,7 @@ public partial class BattleScene : Node2D, ILoggable
 	{
 		_cameraController.FocusOnUnit(activeUnit, this);
 		_movementController.InitiateMoveSelection(activeUnit);
+		_battleMenuHelper.DisplaySkillsForCharacter(activeUnit);
 		GD.Print("Choose action: (S)kip Turn");
 	}
 
